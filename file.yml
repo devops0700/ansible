@@ -1,0 +1,29 @@
+#https://serverfault.com/questions/695786/ansible-print-debug-msg-variable
+#https://raymii.org/s/tutorials/Ansible_-_Only_if_a_file_exists_or_does_not_exist.html
+#https://www.mydailytutorials.com/check-filedirectory-exists-ansible/
+---
+- hosts: webservers
+  become: true
+  tasks:
+  - name: check if file exists example.
+    stat:
+      path: /home/ansible/file.txt
+    register: filexists_details
+
+  - name: print debug message
+    debug:
+#      msg: "The file or directory exists{{':'}} '{{ filexists_details }}'"
+       msg: "The file or directory exists: {{ filexists_details }}"
+#    when: filexists_details.stat.exists
+    when: filexists_details.stat.exists and filexists_details.stat.isreg == true and filexists_details.stat.isdir == false or filexists_details.stat.islnk == true
+
+  - debug:
+      msg: "The file or directory exists: {{ filexists_details }}"
+    when: filexists_details.stat.exists and filexists_details.stat.isreg
+
+  - name: Create a file
+    file: path=/home/ansible/file.txt state=touch
+    when: filexists_details.stat.exists == false
+
+    
+  

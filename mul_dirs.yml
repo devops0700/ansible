@@ -1,0 +1,79 @@
+---
+- hosts: "{{ hostgroups }}"
+  become: true       
+  gather_facts: false
+  tasks:
+  - name: check if dirs exists example and get directory stats
+    stat:
+      path: "{{ directories }}"
+    with_items:
+      - '/home/ansible/test1'
+      - '/home/ansible/test2'
+      - '/home/ansible/test3'
+    loop_control:
+            loop_var: directories      
+    register: chkdir_bef_rem
+
+  # peint debug using when condition
+  - name: print debug message
+    debug:
+      #msg: "directory does exist: {{ chkdir_bef_rem }}"  
+      #when: chkdir_bef_rem.stat.exists == false and chkdir_bef_rem.stat.isdir == false
+      msg: 'dirs {{item.directories}} exists'
+    with_items: "{{ chkdir_bef_rem.results }}"
+    when: item.stat.exists ==  false
+
+  - debug:
+      msg: "directory does exist: {{ chkdir_bef_rem }}"
+      #when: chkdir_bef_rem.stat.exists and chkdir_bef_rem.stat.isdir 
+
+  - name: Remove directory if it exists
+    #file: path={{item}} state=absent
+    file:
+      path: "{{ directories }}"
+      state: absent
+    register: dir_exists
+    with_items:
+      - '/home/ansible/test1'
+      - '/home/ansible/test2'
+      - '/home/ansible/test3' 
+        #when: chkdir_bef_rem.stat.exists ==  true
+        #when: item.stat.exists
+    loop_control:
+      loop_var: directories
+      #when: chkdir_bef_rem.stat.exists 
+      #when: chkdir_bef_rem.stat.exists ==  false
+    #ignore_errors: yes 
+    #
+
+  - name: print debug message of dir_exists
+    debug:
+      msg: "{{dir_exists}}"    
+
+      #  - debug:
+      #      msg: var=chkdir_bef_rem
+  
+  - name: check if dir exists after remove example.
+    stat:
+      path: "{{ item }}"
+    with_items:
+      - '/home/ansible/test1'
+      - '/home/ansible/test2'
+      - '/home/ansible/test3'
+    register: chkdir_aft_rem
+ 
+  - name: print debug message after directory remove
+    debug:
+      msg: 'dirs {{item}} exists'
+    with_items: "{{ chkdir_aft_rem.results }}"
+    when: item.stat.exists ==  false    
+    #msg: "directory does exist: {{ chkdir_aft_rem }}"
+    #when: chkdir_aft_rem.stat.exists == false or chkdir_aft_rem.stat.isdir == false
+
+  - name: Create directory
+    file: path={{item}} state=directory mode=775 owner=ansible group=ansible
+    with_items:
+      - '/home/ansible/test1'
+      - '/home/ansible/test2'
+      - '/home/ansible/test3'
+        # when: item.stat.exists == false

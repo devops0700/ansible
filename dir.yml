@@ -1,0 +1,36 @@
+---
+- hosts: "{{ hostgroups }}"
+  become: true
+  tasks:
+  - name: check if dir exists example.
+    stat:
+      path: /home/ansible/test
+    register: chkdir_bef_rem
+
+  - name: print debug message
+    debug:
+      msg: "directory does exist: {{ chkdir_bef_rem }}"  
+    when: chkdir_bef_rem.stat.exists and chkdir_bef_rem.stat.isdir == false
+
+  - debug:
+      msg: "directory does exist: {{ chkdir_bef_rem }}"
+    when: chkdir_bef_rem.stat.exists and chkdir_bef_rem.stat.isdir
+
+  - name: Remove directory
+    file: path=/home/ansible/test state=absent
+    when: chkdir_bef_rem.stat.exists == true 
+    ignore_errors: yes 
+  
+  - name: check if dir exists after remove example.
+    stat:
+      path: /home/ansible/test
+    register: chkdir_aft_rem
+ 
+  - name: print debug message after directory remove
+    debug:
+      msg: "directory does exist: {{ chkdir_aft_rem }}"
+    when: chkdir_aft_rem.stat.exists == false or chkdir_aft_rem.stat.isdir == false
+
+  - name: Create directory
+    file: path=/home/ansible/test state=directory mode=775 owner=ansible group=ansible
+    when: chkdir_aft_rem.stat.exists == false

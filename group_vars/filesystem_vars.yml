@@ -1,0 +1,7 @@
+hosts_prompt: ansible-oracle-managed-node.localdomain.com.au
+mount_point: /u02
+disk_name: /dev/sdb
+vg_name: vg_data02
+pvs_name: /dev/sdb1
+lv_name: lv_data02
+file_system: ext4

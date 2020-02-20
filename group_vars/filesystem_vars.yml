@@ -1,7 +1,15 @@
+# Below works with "logical_volume_partition_using_vars.yml" to create and mount single file system on managed node
+#hosts_prompt: ansible-oracle-managed-node.localdomain.com.au
+#mount_point: /u02
+#disk_name: /dev/sdb
+#vg_name: vg_data02
+#pvs_name: /dev/sdb1
+#lv_name: lv_data02
+#file_system: ext4
+
+
+# below works with "logical_volume_partition_using_loop_vars.yml" to create and mount multiple file system on managed node
 hosts_prompt: ansible-oracle-managed-node.localdomain.com.au
-mount_point: /u02
-disk_name: /dev/sdb
-vg_name: vg_data02
-pvs_name: /dev/sdb1
-lv_name: lv_data02
-file_system: ext4
+file_systems:
+        - { mount_point: /u02, disk_name: /dev/sdb, vg_name: vg_data02, pvs_name: /dev/sdb1, lv_name: lv_data02, file_system: ext4 }
+        - { mount_point: /u03, disk_name: /dev/sdc, vg_name: vg_data03, pvs_name: /dev/sdc1, lv_name: lv_data03, file_system: ext4 }  
